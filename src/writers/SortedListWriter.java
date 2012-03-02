@@ -7,19 +7,20 @@ import model.*;
 
 public class SortedListWriter extends TivooWriter {
 
-    public void write(List<TivooEvent> eventlist, String outputsummary,
-	    String outputdetails) throws IOException {
-	FileWriter fw = getSummaryFileWriter(outputsummary, outputdetails);
-	HtmlCanvas summary = super.startPage(fw, eventlist, "styles/list_view.css");
+    protected String getCSS() {
+	return "list_view.css";
+    }
+    
+    public void writeEvents(HtmlCanvas summary, List<TivooEvent> eventlist, String summarypath)
+	    throws IOException {
 	startTable(summary, "", "80%", "center", "0", "0", "0");
 	for (TivooEvent e : eventlist) {
 	    startRow(summary);
-	    writeTableCellLink(summary, "", null, "1", "1", e.getTitle(), 
-		    formatDetailURL(eventlist, e, outputdetails));
+	    String detailpath = buildDetailPathRel(eventlist, e, summarypath);
+	    writeTableCellLink(summary, "", null, "1", "1", e.getTitle(), detailpath);
 	    endRow(summary);
-	    doWriteDetailPage(eventlist, e, outputsummary, outputdetails);
+	    new DetailPageWriter().doWriteDetail(e, buildDetailPathAbs(summarypath, detailpath));
 	}
-	endPage(summary, fw);
     }
 
 }

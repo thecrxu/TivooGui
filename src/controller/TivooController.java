@@ -7,35 +7,33 @@ import org.dom4j.DocumentException;
 import org.joda.time.*;
 import writers.*;
 import model.*;
-//import view.*;
+import view.*;
 
 public class TivooController {
 
-    
     private TivooModel myModel;
-    //private TivooGenerator myView;
+    private TivooGenerator myView;
 
     public TivooController() {
 	myModel = new TivooModel();
-        //myView = new TivooGenerator(myModel, this);
+        myView = new TivooGenerator(myModel, this);
     }
     
     public void initialize() {
 	//myView.showPage(DEFAULT_START_PAGE);
-	String input = "tv_test.xml", outputsummary = "output/testhtml_tv_test.html", 
-		outputdetails = "output/details_tv_test/";
+	String input = "dukecal.xml", outputdir = "output";
 	//String input = "DukeBasketBall.xml", outputsummary = "output/testhtml_basketball.html", 
 	//	outputdetails = "output/details_basketball/";
 	//DateTime startdate = TivooTimeHandler.createTimeUTC("20110601T000000Z");
 	//DateTime enddate = startdate.plusDays(180);
-	doRead(new File(input));
+	//doRead(new File(input));
 	//doFilterByTime(startdate, enddate);
 	//doFilterByKeywordTitle("Meet");
-	//doWrite(new SortedListWriter(), outputsummary, outputdetails);
-	doWrite(new DailyCalendarWriter(), outputsummary, outputdetails);
-	//doWrite(new WeeklyCalendarWriter(), outputsummary, outputdetails);
-	//doWrite(new MonthlyCalendarWriter(), outputsummary, outputdetails);
-	//doWrite(new ConflictingEventsWriter(), outputsummary, outputdetails);
+	//doWrite(new SortedListWriter(), outputdir);
+	//doWrite(new DailyCalendarWriter(), outputdir);
+	//doWrite(new WeeklyCalendarWriter(), outputdir);
+	//doWrite(new MonthlyCalendarWriter(), outputdir);
+	//doWrite(new ConflictingEventsWriter(), outputdir);
 
     }
     
@@ -60,10 +58,9 @@ public class TivooController {
 	myModel.filterByKeywordsAttributes(keywords, retain);
     }
     
-    public void doWrite(TivooWriter writer, String outputsummary, 
-	    String outputdetails) {
+    public void doWrite(TivooWriter writer, String outputdir) {
 	try {
-	    writer.write(myModel.getFilteredList(), outputsummary, outputdetails);
+	    writer.doWriteSummary(myModel.getFilteredList(), outputdir);
 	} catch (IOException e) {
 	    e.printStackTrace();
 	}

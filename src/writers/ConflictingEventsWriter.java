@@ -7,27 +7,27 @@ import org.rendersnake.HtmlCanvas;
 
 public class ConflictingEventsWriter extends TivooWriter {
 
-    public void write(List<TivooEvent> eventlist, String outputsummary,
-	    String outputdetails) throws IOException {
-	FileWriter fw = getSummaryFileWriter(outputsummary, outputdetails);
-	HtmlCanvas summary = startPage(fw,eventlist, "styles/conflict_view.css");
+    protected String getCSS() {
+	return "conflict_view.css";
+    }
+    
+    protected void writeEvents(HtmlCanvas summary, List<TivooEvent> eventlist, String summarypath)
+	    throws IOException {
 	startTable(summary, "", "80%", "center", "0", "0", "0");
 	for (TivooEvent e : eventlist) {
 	    List<TivooEvent> conflicts = getConflicts(e, eventlist);
-	    if (!conflicts.isEmpty()) {
+	    if (conflicts.isEmpty()) continue;
+	    startRow(summary);
+	    String detailpath = buildDetailPathRel(eventlist, e, summarypath);
+	    writeTableCellLink(summary, "conflict", null, "1", "1", e.getTitle(), detailpath);
+	    endRow(summary);
+	    for (TivooEvent o: conflicts) {
 		startRow(summary);
-		writeTableCellLink(summary, "conflict", null, "1", "1", e.getTitle(), 
-			formatDetailURL(eventlist, e, outputdetails));
+		writeTableCellLiteral(summary, "", null, "1", "1", o.toString());
 		endRow(summary);
-		for (TivooEvent o: conflicts) {
-		    startRow(summary);
-		    writeTableCellLiteral(summary, "", null, "1", "1", o.toString());
-		    endRow(summary);
-		}
 	    }
-	    doWriteDetailPage(eventlist, e, outputsummary, outputdetails);
+	    new DetailPageWriter().doWriteDetail(e, buildDetailPathAbs(summarypath, detailpath));
 	}
-	endPage(summary, fw);
     }
     
     private List<TivooEvent> getConflicts(TivooEvent e, List<TivooEvent> eventlist) {

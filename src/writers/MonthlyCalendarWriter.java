@@ -12,16 +12,18 @@ public class MonthlyCalendarWriter extends TivooWriter {
     private List<Integer> date;
     private List<Integer> week;
 
+    protected String getCSS() {
+	return "monthly_calendar.css";
+    }
+
     private void clearList() {
 	event = new ArrayList<TivooEvent>();
 	date = new ArrayList<Integer>();
 	week = new ArrayList<Integer>();
     }
 
-    public void write(List<TivooEvent> eventlist, String outputsummary,
-	    String outputdetails) throws IOException {
-	FileWriter fw = getSummaryFileWriter(outputsummary, outputdetails);
-	HtmlCanvas summary = startPage(fw, eventlist, "styles/monthly_calendar.css");
+    public void writeEvents(HtmlCanvas summary, List<TivooEvent> eventlist, String summarypath)
+	    throws IOException {
 	startTable(summary, "", "90%", "center", "1", "0", "0");
 	DateTime current = TivooTimeHandler.createLocalTime(eventlist.get(0).getStart());
 	clearList();
@@ -30,9 +32,7 @@ public class MonthlyCalendarWriter extends TivooWriter {
 	for (TivooEvent e: eventlist) {
 	    count++;
 	    boolean addedThisTime = false;
-	    //if (e.isLongEvent()) continue;
 	    DateTime localstart = TivooTimeHandler.createLocalTime(e.getStart());
-	    // DateTime localend = TivooTimeHandler.createLocalTime(e.getEnd());
 	    if (localstart.getMonthOfYear() != current.getMonthOfYear()) {
 		current = localstart;
 		flag = false;
@@ -68,9 +68,10 @@ public class MonthlyCalendarWriter extends TivooWriter {
 			summary.td();
 			for (int k = 0; k < date.size(); k++) {
 			    if (date.get(k) == j && week.get(k) == i + startWeek) {
-				writeParagraph(summary, "", event.get(k).getTitle(),
-					formatDetailURL(eventlist, event.get(k), outputdetails));
-				doWriteDetailPage(eventlist, event.get(k),	outputsummary, outputdetails);
+				TivooEvent f = event.get(k);
+				String detailpath = buildDetailPathRel(eventlist, f, summarypath);
+				writeParagraph(summary, "", event.get(k).getTitle(), detailpath);
+				new DetailPageWriter().doWriteDetail(f, buildDetailPathAbs(summarypath, detailpath));
 			    }
 			}
 			summary._td();
@@ -86,7 +87,6 @@ public class MonthlyCalendarWriter extends TivooWriter {
 		event.add(e);
 	    }
 	}
-	endPage(summary, fw);
     }
 
 }

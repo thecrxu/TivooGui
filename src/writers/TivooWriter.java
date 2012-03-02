@@ -2,49 +2,48 @@ package writers;
 
 import static org.rendersnake.HtmlAttributesFactory.*;
 import java.io.*;
-
 import model.*;
-
 import org.rendersnake.*;
-
 import java.util.*;
 
 public abstract class TivooWriter {
 
-    public abstract void write(List<TivooEvent> eventlist, String outputsummary, String outputdetails)
-	    throws IOException;
+    protected abstract void writeEvents(HtmlCanvas target, List<TivooEvent> eventlist, 
+	    String summarypath) throws IOException;
     
-    public void writeStart(List<TivooEvent> eventlist, String outputsummary, String outputdetails)
-	    throws IOException {
-	
+    protected abstract String getCSS();
+    
+    public void doWriteSummary(List<TivooEvent> eventlist, String outputpath)
+    	throws IOException {
+	TivooFileUtils.makeDirectory(outputpath + "/details");
+	String summarypath = outputpath + "/summary.html";
+	doWrite(eventlist, summarypath);
     }
     
-    protected FileWriter getSummaryFileWriter(String outputsummary, String outputdetails) 
-	    throws IOException {
-	if (!new File(outputdetails).isDirectory())
-	    throw new TivooException("Output path not a directory!");
-	TivooUtils.clearDirectory(outputdetails);
-	return new FileWriter(outputsummary);
-    }
-    
-    protected String buildDetailURL(List<TivooEvent> eventlist, TivooEvent e) {
-        return e.getTitle()
-        	.replaceAll("[^A-z0-9]", "").replaceAll("\\s+", "_").trim()
-        	.concat(Integer.toString(eventlist.indexOf(e))).concat(".html");
-    }
-    
-    protected String formatDetailURL(List<TivooEvent> eventlist, TivooEvent e, String outputdetails) {
-	 String s = outputdetails + buildDetailURL(eventlist, e);
-	 return s.substring(outputdetails.indexOf("/") + 1);
-	//return outputdetails + buildDetailURL(e);
-    }
-    
-    protected void doWriteDetailPage(List<TivooEvent> eventlist,
-	    TivooEvent e, String outputsummary, String outputdetails)
+    protected void doWriteDetail(TivooEvent e, String detailpath)
 	    throws IOException {
 	List<TivooEvent> oneevent = new ArrayList<TivooEvent>();
 	oneevent.add(e);
-	new DetailPageWriter().write(oneevent, outputsummary, outputdetails + buildDetailURL(eventlist, e));
+	doWrite(oneevent, detailpath);
+    }
+    
+    private void doWrite(List<TivooEvent> eventlist, String path) throws IOException {
+	FileWriter fw = new FileWriter(path);
+	HtmlCanvas summary = startPage(fw, eventlist, 
+		TivooFileUtils.getWorkingDirectory() + "/styles/" + getCSS());
+	writeEvents(summary, eventlist, path);
+	endPage(summary, fw);
+    }
+    
+    protected String buildDetailPathRel(List<TivooEvent> eventlist, TivooEvent e, 
+	    String summarypath) {
+	 return "details/".concat(e.getTitle()
+	        	.replaceAll("[^A-z0-9]", "").replaceAll("\\s+", "_").trim()
+	        	.concat(Integer.toString(eventlist.indexOf(e))).concat(".html"));
+    }
+    
+    protected String buildDetailPathAbs(String summarypath, String detailpathrel) {
+	 return summarypath.replace("summary.html", "") + detailpathrel;
     }
     
     protected HtmlCanvas startPage(FileWriter fw, List<TivooEvent> eventlist, String css) throws IOException {

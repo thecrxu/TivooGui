@@ -19,4 +19,8 @@ public class TivooTimeHandler {
 	return dt.toDateTime(DateTimeZone.getDefault());
     }
     
+    public static String getCurrentTime() {
+	return DateTime.now().toString("YYYY-MM-dd-HHmmss");
+    }
+    
 }

@@ -8,11 +8,13 @@ import org.rendersnake.*;
 import model.*;
 
 public class DailyCalendarWriter extends TivooWriter {
+    
+    protected String getCSS() {
+	return "daily_calendar.css";
+    }
 
-    public void write(List<TivooEvent> eventlist, String outputsummary, String outputdetails) 
+    protected void writeEvents(HtmlCanvas summary, List<TivooEvent> eventlist, String summarypath)
 	    throws IOException {
-	FileWriter fw = getSummaryFileWriter(outputsummary, outputdetails);
-	HtmlCanvas summary = startPage(fw, eventlist, "styles/daily_calendar.css");
 	Set<Integer> writtenstartdate = new HashSet<Integer>();
 	startTable(summary, "", "80%", "center", "0", "0", "0");
 	for (TivooEvent e: eventlist) {
@@ -22,12 +24,11 @@ public class DailyCalendarWriter extends TivooWriter {
 	    checkDuplicateStartDate(summary, localstart, writtenstartdate);
 	    startRow(summary);
 	    writeTableHead(summary, "time", null, "1", "1", formatStartEnd(localstart, localend), "");
-	    writeTableCellLink(summary, "", null, "1", "1", e.getTitle(), 
-		    formatDetailURL(eventlist, e, outputdetails));
+	    String detailpath = buildDetailPathRel(eventlist, e, summarypath);
+	    writeTableCellLink(summary, "", null, "1", "1", e.getTitle(), detailpath);
 	    endRow(summary);
-	    doWriteDetailPage(eventlist, e, outputsummary, outputdetails);
+	    new DetailPageWriter().doWriteDetail(e, buildDetailPathAbs(summarypath, detailpath));
 	}
-	endPage(summary, fw);
     }
     
     private String formatStartEnd(DateTime start, DateTime end) {
