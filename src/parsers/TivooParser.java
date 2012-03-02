@@ -5,14 +5,14 @@ import java.util.*;
 import model.*;
 import org.dom4j.*;
 import org.dom4j.io.*;
-import sharedattributes.*;
 
 public abstract class TivooParser {
     
-    protected Map<String, TivooAttribute> noneedparsemap = new HashMap<String, TivooAttribute>();
-    protected Map<TivooAttribute, Object> grabdatamap = new HashMap<TivooAttribute, Object>();
+    @SuppressWarnings("unused")
+    private TivooEventType eventtype;
+    private Map<String, String> nodenamemap = new HashMap<String, String>();
+    protected Map<String, Object> grabdatamap = new HashMap<String, Object>();
     protected List<TivooEvent> eventlist;
-    protected TivooEventType eventtype;
     
     public abstract String getRootName();
 
@@ -24,8 +24,8 @@ public abstract class TivooParser {
 	eventtype = type;
     }
     
-    protected void updateNoNeedParseMap(String key, TivooAttribute value) {
-	noneedparsemap.put(key, value);
+    protected void updateNodeNameMap(String key, String value) {
+	nodenamemap.put(key, value);
     }
     
     @SuppressWarnings("serial")
@@ -40,20 +40,24 @@ public abstract class TivooParser {
 	return polluted;
     }
     
+    protected String getElementFieldValue(Element e, String field) {
+	return sanitizeString(((Element) e.elements(field).get(0)).getStringValue());
+    }
+    
     public List<TivooEvent> convertToList(File input) {
 	eventlist = new ArrayList<TivooEvent>();
         SAXReader reader = TivooReader.getReader();
         setUpHandlers(reader);
         try {
             reader.read(input);
-            noneedparsemap.clear();
+            nodenamemap.clear();
         } catch (DocumentException e) {
             e.printStackTrace();
         }
 	return new ArrayList<TivooEvent>(eventlist);
     }
     
-    protected class NoNeedParseHandler implements ElementHandler {
+    protected class GetStringValueHandler implements ElementHandler {
 	
 	public void onStart(ElementPath elementPath) {}
 
@@ -61,12 +65,7 @@ public abstract class TivooParser {
 	    Element e = elementPath.getCurrent();
 	    String str = sanitizeString(e.getStringValue());
 	    String relpath = e.getPath(e.getParent());
-	    TivooAttribute attr = noneedparsemap.get(relpath);
-	    if (attr == null) {
-		System.out.println(noneedparsemap);
-		System.out.println(relpath);
-		System.out.println(str);
-	    }
+	    String attr = nodenamemap.get(relpath);
 	    grabdatamap.put(attr, str);
 	    elementPath.getCurrent().detach();
 	}

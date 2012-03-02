@@ -6,28 +6,22 @@ import org.dom4j.*;
 import org.dom4j.io.*;
 import org.joda.time.*;
 import org.joda.time.format.*;
-import sharedattributes.*;
 import model.*;
 
 public class TVParser extends TivooParser {
     
     private Map<String, Set<String>> channelmap;
-    private String cachedcurrentchannel;
-    private Set<String> cacheddisplaynames;
-    private Set<String> cachedactors;
 
     public TVParser() {
 	channelmap = new HashMap<String, Set<String>>();
-	cacheddisplaynames = new HashSet<String>();
-	cachedactors = new HashSet<String>();
 	setEventType(new TVEventType());
-	updateNoNeedParseMap("title", new Title());
-	updateNoNeedParseMap("desc", new Description());
+	updateNodeNameMap("title", "Title");
+	updateNodeNameMap("desc", "Description");
     }
     
     protected void setUpHandlers(SAXReader reader) {
-	reader.addHandler("/tv/programme/title", new NoNeedParseHandler());
-	reader.addHandler("/tv/programme/desc", new NoNeedParseHandler());
+	reader.addHandler("/tv/programme/title", new GetStringValueHandler());
+	reader.addHandler("/tv/programme/desc", new GetStringValueHandler());
 	reader.addHandler("/tv/channel", new TopLevelHandler());
 	reader.addHandler("/tv/programme", new EventLevelHandler());
     }
@@ -49,8 +43,8 @@ public class TVParser extends TivooParser {
 	
 	private TVEventType() {
 	    @SuppressWarnings("serial")
-	    Set<TivooAttribute> localSpecialAttributes = new HashSet<TivooAttribute>() {{
-		add(new Channel()); add(new Actor()); 
+	    Set<String> localSpecialAttributes = new HashSet<String>() {{
+		add("Channel(s)"); add("Actor(s)"); 
 	    }};
 	    addSpecialAttributes(localSpecialAttributes);
 	}
@@ -63,15 +57,15 @@ public class TVParser extends TivooParser {
     
     private class TopLevelHandler implements ElementHandler {
 
-	public void onStart(ElementPath elementPath) {
-	    cachedcurrentchannel= elementPath.getCurrent().attributeValue("id");
-	    elementPath.addHandler("display-name", new DisplayNameHandler());
-	}
+	public void onStart(ElementPath elementPath) {}
 
 	public void onEnd(ElementPath elementPath) {
-	    channelmap.put(cachedcurrentchannel, new HashSet<String>(cacheddisplaynames));
-	    cacheddisplaynames.clear();
-	    elementPath.getCurrent().detach();
+	    Element e = elementPath.getCurrent();
+	    String currentchannel = e.attributeValue("id");
+	    channelmap.put(currentchannel, new HashSet<String>());
+	    for (Iterator<?> iter = e.elementIterator(); iter.hasNext(); )
+		channelmap.get(currentchannel).add(((Element) iter.next()).getStringValue());
+	    e.detach();
 	}
 	
     }
@@ -83,15 +77,15 @@ public class TVParser extends TivooParser {
 	    DateTime starttime = parseTime(e.attributeValue("start"));
 	    DateTime endtime = parseTime(e.attributeValue("stop"));
 	    String channel = e.attributeValue("channel");
-	    grabdatamap.put(new StartTime(), starttime);
-	    grabdatamap.put(new EndTime(), endtime);
-	    grabdatamap.put(new Channel(), channelmap.get(channel));
+	    grabdatamap.put("Start Time", starttime);
+	    grabdatamap.put("End Time", endtime);
+	    grabdatamap.put("Channel(s)", channelmap.get(channel));
 	    elementPath.addHandler("credits", new CreditsHandler());
 	}
 
 	public void onEnd(ElementPath elementPath) {
-            eventlist.add(new TivooEvent(eventtype, 
-        	    new HashMap<TivooAttribute, Object>(grabdatamap)));
+            eventlist.add(new TivooEvent(getEventType(), 
+        	    new HashMap<String, Object>(grabdatamap)));
 	    grabdatamap.clear();
 	    elementPath.getCurrent().detach();
 	}
@@ -100,52 +94,15 @@ public class TVParser extends TivooParser {
 
     private class CreditsHandler implements ElementHandler {
 	
-	public void onStart(ElementPath elementPath) {
-	    elementPath.addHandler("actor", new ActorHandler());
-	}
-
-	public void onEnd(ElementPath elementPath) {
-	    grabdatamap.put(new Actor(), new HashSet<String>(cachedactors));
-	    cachedactors.clear();
-	    elementPath.getCurrent().detach();
-	}
-	
-    }
-    
-    private class DisplayNameHandler implements ElementHandler {
-	
 	public void onStart(ElementPath elementPath) {}
 
 	public void onEnd(ElementPath elementPath) {
-	    cacheddisplaynames.add(elementPath.getCurrent().getStringValue());
-	    elementPath.getCurrent().detach();
-	}
-	
-    }
-    
-    private class ActorHandler implements ElementHandler {
-	
-	public void onStart(ElementPath elementPath) {}
-
-	public void onEnd(ElementPath elementPath) {
-	    cachedactors.add(elementPath.getCurrent().getStringValue());
-	    elementPath.getCurrent().detach();
-	}
-	
-    }
-    
-    private class Channel extends TivooAttribute {
-
-	public String toString() {
-	    return "Channel(s)";
-	}
-	    
-    }
-	
-    private class Actor extends TivooAttribute {
-
-	public String toString() {	
-	    return "Actor(s)";
+	    Element e = elementPath.getCurrent();
+	    Set<String> actors = new HashSet<String>();
+	    for (Iterator<?> iter = e.elementIterator("actor"); iter.hasNext(); )
+		actors.add(((Element) iter.next()).getStringValue());
+	    grabdatamap.put("Actor(s)", actors);
+	    e.detach();
 	}
 	
     }

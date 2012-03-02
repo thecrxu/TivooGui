@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.*;
 import org.joda.time.*;
 import org.rendersnake.*;
-import sharedattributes.*;
 import model.*;
 
 public class DetailPageWriter extends TivooWriter {
@@ -23,10 +22,9 @@ public class DetailPageWriter extends TivooWriter {
     private void writeOneDetailPage(TivooEvent e, String outputsummary, String detailURL)
 	    throws IOException {
 	FileWriter fw = new FileWriter(detailURL);
-	HtmlCanvas detail = new HtmlCanvas(fw);
-	startHtml(detail);
-	writeHeadWithCSS(detail, "../styles/detail_page.css");
-	startBody(detail);
+	List<TivooEvent> dummylist = new ArrayList<TivooEvent>();
+	dummylist.add(e);
+	HtmlCanvas detail = startPage(fw, dummylist, "../styles/detail_page.css");
 	startTable(detail, "", "70%", "center", "0", "0", "0");
 	startRow(detail);
 	writeTableHead(detail, "title", null,"1", "2", e.getTitle(), "");
@@ -37,8 +35,8 @@ public class DetailPageWriter extends TivooWriter {
 	startRow(detail);
 	writeTableCellLiteral(detail, "", null, "1", "1", e.getDescription());
 	endRow(detail);
-	Map<TivooAttribute, Object> specialAttributes = e.getSpecialAttributes();
-	for (TivooAttribute attr: specialAttributes.keySet()) {
+	Map<String, Object> specialAttributes = e.getSpecialAttributes();
+	for (String attr: specialAttributes.keySet()) {
 	    startRow(detail);
 	    String towrite = attr.toString() + ": " +
 		    specialAttributes.get(attr).toString().replaceAll("\\]", "")
@@ -50,10 +48,7 @@ public class DetailPageWriter extends TivooWriter {
 	writeTableCellLink(detail, "back", null, "1", "1", "Back to summary", 
 		"../../" + outputsummary);
 	endRow(detail);
-	endTable(detail);
-	endBody(detail);
-	endHtml(detail);
-	fw.close();
+	endPage(detail, fw);
     }
     
     private String formatStartEnd(DateTime start, DateTime end) {

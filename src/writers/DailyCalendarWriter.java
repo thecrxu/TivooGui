@@ -4,19 +4,16 @@ import java.io.*;
 import java.util.*;
 import org.joda.time.*;
 import org.rendersnake.*;
+
 import model.*;
 
 public class DailyCalendarWriter extends TivooWriter {
 
     public void write(List<TivooEvent> eventlist, String outputsummary, String outputdetails) 
 	    throws IOException {
-	FileWriter fw = getSummaryFileWriter(outputdetails, outputsummary);
-	HtmlCanvas summary = new HtmlCanvas(fw);
-	Collections.sort(eventlist, TivooEvent.EventTimeComparator);
-	HashSet<Integer> writtenstartdate = new HashSet<Integer>();
-	startHtml(summary);
-	writeHeadWithCSS(summary, "styles/daily_calendar.css");
-	startBody(summary);
+	FileWriter fw = getSummaryFileWriter(outputsummary, outputdetails);
+	HtmlCanvas summary = startPage(fw, eventlist, "styles/daily_calendar.css");
+	Set<Integer> writtenstartdate = new HashSet<Integer>();
 	startTable(summary, "", "80%", "center", "0", "0", "0");
 	for (TivooEvent e: eventlist) {
 	    if (e.isLongEvent()) continue;
@@ -30,10 +27,7 @@ public class DailyCalendarWriter extends TivooWriter {
 	    endRow(summary);
 	    doWriteDetailPage(eventlist, e, outputsummary, outputdetails);
 	}
-	endTable(summary);
-	endBody(summary);
-	endHtml(summary);
-	fw.close();
+	endPage(summary, fw);
     }
     
     private String formatStartEnd(DateTime start, DateTime end) {

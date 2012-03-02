@@ -53,7 +53,9 @@ public class TivooModel {
     public void read(File input) throws DocumentException {
 	TivooParser p = new TivooReader().read(input);
 	seentypes.add(p.getEventType());
-    	eventlist.addAll(p.convertToList(input));
+	Set<TivooEvent> eventset = new HashSet<TivooEvent>(eventlist);
+	eventset.addAll(p.convertToList(input));
+	eventlist = new ArrayList<TivooEvent>(eventset);
     	filteredlist = new ArrayList<TivooEvent>(eventlist);
     }
     

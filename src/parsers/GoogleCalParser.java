@@ -6,7 +6,6 @@ import org.dom4j.*;
 import org.dom4j.io.*;
 import org.joda.time.*;
 import org.joda.time.format.*;
-import sharedattributes.*;
 import model.*;
 
 public class GoogleCalParser extends TivooParser {
@@ -17,13 +16,13 @@ public class GoogleCalParser extends TivooParser {
     public GoogleCalParser() {
 	recurringstartend = new ArrayList<List<DateTime>>();
 	setEventType(new GoogleCalEventType());
-	updateNoNeedParseMap("*[name()='title']", new Title());
-	updateNoNeedParseMap("*[name()='content']", new Description());
+	updateNodeNameMap("*[name()='title']", "Title");
+	updateNodeNameMap("*[name()='content']", "Description");
     }
     
     protected void setUpHandlers(SAXReader reader) {
-	reader.addHandler("/feed/entry/title", new NoNeedParseHandler());
-	reader.addHandler("/feed/entry/content", new NoNeedParseHandler());
+	reader.addHandler("/feed/entry/title", new GetStringValueHandler());
+	reader.addHandler("/feed/entry/content", new GetStringValueHandler());
 	reader.addHandler("/feed/gCal:timezone", new TopLevelHandler());
 	reader.addHandler("/feed/entry", new EventLevelHandler());
     }
@@ -90,10 +89,10 @@ public class GoogleCalParser extends TivooParser {
     
     private void buildRecurringEvents() {
 	for (int i = 0; i < recurringstartend.get(0).size(); i++) {
-	    Map<TivooAttribute, Object> toadd = new HashMap<TivooAttribute, Object>(grabdatamap);
-	    toadd.put(new StartTime(), recurringstartend.get(0).get(i));
-	    toadd.put(new EndTime(), recurringstartend.get(1).get(i));
-	    eventlist.add(new TivooEvent(eventtype, toadd));
+	    Map<String, Object> toadd = new HashMap<String, Object>(grabdatamap);
+	    toadd.put("Start Time", recurringstartend.get(0).get(i));
+	    toadd.put("End Time", recurringstartend.get(1).get(i));
+	    eventlist.add(new TivooEvent(getEventType(), toadd));
 	}
     }
     
@@ -130,8 +129,8 @@ public class GoogleCalParser extends TivooParser {
 
 	public void onEnd(ElementPath elementPath) {
 	    if (recurringstartend.isEmpty()) {
-		eventlist.add(new TivooEvent(eventtype,
-			new HashMap<TivooAttribute, Object>(grabdatamap)));
+		eventlist.add(new TivooEvent(getEventType(),
+			new HashMap<String, Object>(grabdatamap)));
 	    }
 	    else 
 		buildRecurringEvents();
@@ -154,8 +153,8 @@ public class GoogleCalParser extends TivooParser {
 	    }
 	    else {
 		List<DateTime> startend = parseOneTimeEvent(timestring);
-		grabdatamap.put(new StartTime(), startend.get(0));
-		grabdatamap.put(new EndTime(), startend.get(1));
+		grabdatamap.put("Start Time", startend.get(0));
+		grabdatamap.put("End Time", startend.get(1));
 	    }
 	    elementPath.getCurrent().detach();
 	}

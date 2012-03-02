@@ -9,12 +9,8 @@ public class SortedListWriter extends TivooWriter {
 
     public void write(List<TivooEvent> eventlist, String outputsummary,
 	    String outputdetails) throws IOException {
-	FileWriter fw = getSummaryFileWriter(outputdetails, outputsummary);
-	HtmlCanvas summary = new HtmlCanvas(fw);
-	Collections.sort(eventlist, TivooEvent.EventTimeComparator);
-	startHtml(summary);
-	writeHeadWithCSS(summary, "styles/list_view.css");
-	startBody(summary);
+	FileWriter fw = getSummaryFileWriter(outputsummary, outputdetails);
+	HtmlCanvas summary = super.startPage(fw, eventlist, "styles/list_view.css");
 	startTable(summary, "", "80%", "center", "0", "0", "0");
 	for (TivooEvent e : eventlist) {
 	    startRow(summary);
@@ -23,10 +19,7 @@ public class SortedListWriter extends TivooWriter {
 	    endRow(summary);
 	    doWriteDetailPage(eventlist, e, outputsummary, outputdetails);
 	}
-	endTable(summary);
-	endBody(summary);
-	endHtml(summary);
-	fw.close();
+	endPage(summary, fw);
     }
 
 }

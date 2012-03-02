@@ -37,9 +37,8 @@ public class TivooReader {
     
     public TivooParser read(File input) throws DocumentException {
 	SAXReader reader = getReader();
-	for (String rootname: parsermap.keySet()) {
+	for (String rootname: parsermap.keySet())
 	    reader.addHandler("/" + rootname, new TypeCheckHandler());
-	}
 	reader.read(input);
 	return pickedparser;
     }

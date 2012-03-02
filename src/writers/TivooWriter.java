@@ -2,8 +2,11 @@ package writers;
 
 import static org.rendersnake.HtmlAttributesFactory.*;
 import java.io.*;
+
 import model.*;
+
 import org.rendersnake.*;
+
 import java.util.*;
 
 public abstract class TivooWriter {
@@ -11,7 +14,12 @@ public abstract class TivooWriter {
     public abstract void write(List<TivooEvent> eventlist, String outputsummary, String outputdetails)
 	    throws IOException;
     
-    protected FileWriter getSummaryFileWriter(String outputdetails, String outputsummary) 
+    public void writeStart(List<TivooEvent> eventlist, String outputsummary, String outputdetails)
+	    throws IOException {
+	
+    }
+    
+    protected FileWriter getSummaryFileWriter(String outputsummary, String outputdetails) 
 	    throws IOException {
 	if (!new File(outputdetails).isDirectory())
 	    throw new TivooException("Output path not a directory!");
@@ -37,6 +45,21 @@ public abstract class TivooWriter {
 	List<TivooEvent> oneevent = new ArrayList<TivooEvent>();
 	oneevent.add(e);
 	new DetailPageWriter().write(oneevent, outputsummary, outputdetails + buildDetailURL(eventlist, e));
+    }
+    
+    protected HtmlCanvas startPage(FileWriter fw, List<TivooEvent> eventlist, String css) throws IOException {
+	HtmlCanvas summary = new HtmlCanvas(fw);
+	startHtml(summary);
+	writeHeadWithCSS(summary, css);
+	startBody(summary);
+	return summary;
+    }
+    
+    protected void endPage(HtmlCanvas target, FileWriter fw) throws IOException {
+	endTable(target);
+	endBody(target);
+	endHtml(target);
+	fw.close();
     }
     
     protected void writeHeadWithCSS(HtmlCanvas target, String stylefile) throws IOException {

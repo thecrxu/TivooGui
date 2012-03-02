@@ -24,8 +24,8 @@ public class TivooController {
 	//myView.showPage(DEFAULT_START_PAGE);
 	String input = "tv_test.xml", outputsummary = "output/testhtml_tv_test.html", 
 		outputdetails = "output/details_tv_test/";
-	//String input = "NFL.xml", outputsummary = "output/testhtml_nfl.html", 
-	//	outputdetails = "output/details_nfl/";
+	//String input = "DukeBasketBall.xml", outputsummary = "output/testhtml_basketball.html", 
+	//	outputdetails = "output/details_basketball/";
 	//DateTime startdate = TivooTimeHandler.createTimeUTC("20110601T000000Z");
 	//DateTime enddate = startdate.plusDays(180);
 	doRead(new File(input));

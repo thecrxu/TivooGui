@@ -4,22 +4,21 @@ import java.util.*;
 import org.dom4j.*;
 import org.dom4j.io.*;
 import org.joda.time.*;
-import sharedattributes.*;
 import model.*;
 
 public class DukeCalParser extends TivooParser {
     
     public DukeCalParser() {
 	setEventType(new DukeCalEventType());
-	updateNoNeedParseMap("summary", new Title());
-	updateNoNeedParseMap("description", new Description());
-	updateNoNeedParseMap("address", new Location());
+	updateNodeNameMap("summary", "Title");
+	updateNodeNameMap("description", "Description");
+	updateNodeNameMap("address", "Location");
     }
     
     protected void setUpHandlers(SAXReader reader) {
-	reader.addHandler("/events/event/summary", new NoNeedParseHandler());
-	reader.addHandler("/events/event/description", new NoNeedParseHandler());
-	reader.addHandler("/events/event/location/address", new NoNeedParseHandler());
+	reader.addHandler("/events/event/summary", new GetStringValueHandler());
+	reader.addHandler("/events/event/description", new GetStringValueHandler());
+	reader.addHandler("/events/event/location/address", new GetStringValueHandler());
 	reader.addHandler("/events/event", new EventLevelHandler());
     }
     
@@ -40,8 +39,8 @@ public class DukeCalParser extends TivooParser {
 	
 	private DukeCalEventType() {
 	    @SuppressWarnings("serial")
-	    Set<TivooAttribute> localSpecialAttributes = new HashSet<TivooAttribute>() {{
-		add(new Location());
+	    Set<String> localSpecialAttributes = new HashSet<String>() {{
+		add("Location");
 	    }};
 	    addSpecialAttributes(localSpecialAttributes);
 	}
@@ -60,8 +59,7 @@ public class DukeCalParser extends TivooParser {
 	}
 
 	public void onEnd(ElementPath elementPath) {
-            eventlist.add(new TivooEvent(eventtype, 
-        	    new HashMap<TivooAttribute, Object>(grabdatamap)));
+            eventlist.add(new TivooEvent(getEventType(), new HashMap<String, Object>(grabdatamap)));
 	    grabdatamap.clear();
 	    elementPath.getCurrent().detach();
 	}
@@ -76,13 +74,13 @@ public class DukeCalParser extends TivooParser {
 	    Element e = elementPath.getCurrent();
 	    if (e.getPath().contains("start")) {
 		DateTime starttime = parseTime(e);
-		grabdatamap.put(new StartTime(), starttime);
+		grabdatamap.put("Start Time", starttime);
 	    }
 	    else {
 		DateTime endtime = parseTime(e);
-		grabdatamap.put(new EndTime(), endtime);
+		grabdatamap.put("End Time", endtime);
 	    }
-	    elementPath.getCurrent().detach();
+	    e.detach();
 	}
 	
     }

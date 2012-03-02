@@ -8,9 +8,9 @@ import model.*;
 
 public class MonthlyCalendarWriter extends TivooWriter {
 
-    private ArrayList<TivooEvent> event;
-    private ArrayList<Integer> date;
-    private ArrayList<Integer> week;
+    private List<TivooEvent> event;
+    private List<Integer> date;
+    private List<Integer> week;
 
     private void clearList() {
 	event = new ArrayList<TivooEvent>();
@@ -20,12 +20,8 @@ public class MonthlyCalendarWriter extends TivooWriter {
 
     public void write(List<TivooEvent> eventlist, String outputsummary,
 	    String outputdetails) throws IOException {
-	FileWriter fw = getSummaryFileWriter(outputdetails, outputsummary);
-	HtmlCanvas summary = new HtmlCanvas(fw);
-	Collections.sort(eventlist, TivooEvent.EventTimeComparator);
-	startHtml(summary);
-	writeHeadWithCSS(summary, "styles/monthly_calendar.css");
-	startBody(summary);
+	FileWriter fw = getSummaryFileWriter(outputsummary, outputdetails);
+	HtmlCanvas summary = startPage(fw, eventlist, "styles/monthly_calendar.css");
 	startTable(summary, "", "90%", "center", "1", "0", "0");
 	DateTime current = TivooTimeHandler.createLocalTime(eventlist.get(0).getStart());
 	clearList();
@@ -90,10 +86,7 @@ public class MonthlyCalendarWriter extends TivooWriter {
 		event.add(e);
 	    }
 	}
-	endTable(summary);
-	endBody(summary);
-	endHtml(summary);
-	fw.close();
+	endPage(summary, fw);
     }
 
 }

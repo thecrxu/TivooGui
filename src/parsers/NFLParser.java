@@ -7,21 +7,20 @@ import org.dom4j.io.*;
 import org.joda.time.*;
 import org.joda.time.format.*;
 import model.*;
-import sharedattributes.*;
 
 public class NFLParser extends TivooParser {
 
     public NFLParser() {
 	setEventType(new NFLEventType());
-	updateNoNeedParseMap("Col1", new Title());
-	updateNoNeedParseMap("Col2", new Description());
-	updateNoNeedParseMap("Col15", new Location());
+	updateNodeNameMap("Col1", "Title");
+	updateNodeNameMap("Col2", "Description");
+	updateNodeNameMap("Col15", "Location");
     }
     
     protected void setUpHandlers(SAXReader reader) {
-	reader.addHandler("/document/row/Col1", new NoNeedParseHandler());
-	reader.addHandler("/document/row/Col2", new NoNeedParseHandler());
-	reader.addHandler("/document/row/Col15", new NoNeedParseHandler());
+	reader.addHandler("/document/row/Col1", new GetStringValueHandler());
+	reader.addHandler("/document/row/Col2", new GetStringValueHandler());
+	reader.addHandler("/document/row/Col15", new GetStringValueHandler());
 	reader.addHandler("/document/row", new EventLevelHandler());
     }
     
@@ -43,8 +42,8 @@ public class NFLParser extends TivooParser {
 	
 	private NFLEventType() {
 	    @SuppressWarnings("serial")
-	    Set<TivooAttribute> localSpecialAttributes = new HashSet<TivooAttribute>() {{
-		add(new Location());
+	    Set<String> localSpecialAttributes = new HashSet<String>() {{
+		add("Location");
 	    }};
 	    addSpecialAttributes(localSpecialAttributes);
 	}
@@ -63,8 +62,8 @@ public class NFLParser extends TivooParser {
 	}
 
 	public void onEnd(ElementPath elementPath) {
-            eventlist.add(new TivooEvent(eventtype, 
-        	    new HashMap<TivooAttribute, Object>(grabdatamap)));
+            eventlist.add(new TivooEvent(getEventType(), 
+        	    new HashMap<String, Object>(grabdatamap)));
 	    grabdatamap.clear();
 	    elementPath.getCurrent().detach();
 	}
@@ -79,11 +78,11 @@ public class NFLParser extends TivooParser {
 	    Element e = elementPath.getCurrent();
 	    if (e.getName().equals("Col8")) {
 		DateTime starttime = parseTime(e);
-		grabdatamap.put(new StartTime(), starttime);
+		grabdatamap.put("Start Time", starttime);
 	    }
 	    else {
 		DateTime endtime = parseTime(e);
-		grabdatamap.put(new EndTime(), endtime);
+		grabdatamap.put("End Time", endtime);
 	    }
 	    elementPath.getCurrent().detach();
 	}

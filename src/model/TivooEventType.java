@@ -2,28 +2,26 @@ package model;
 
 import java.util.*;
 
-import sharedattributes.*;
-
 public abstract class TivooEventType implements Comparable<TivooEventType> {
 
     public abstract String toString();
     
     @SuppressWarnings("serial")
-    private static Set<TivooAttribute> commonAttributes = new HashSet<TivooAttribute>() {{
-	add(new Title()); add(new Description()); add(new StartTime()); add(new EndTime());
+    private static Set<String> commonAttributes = new HashSet<String>() {{
+	add("Title"); add("Description"); add("Start Time"); add("End Time");
     }};
     
-    private Set<TivooAttribute> specialAttributes = new HashSet<TivooAttribute>();
+    private Set<String> specialAttributes = new HashSet<String>();
     
-    public static Set<TivooAttribute> getCommonAttributes() {
+    public static Set<String> getCommonAttributes() {
 	return Collections.unmodifiableSet(commonAttributes);
     }
     
-    public Set<TivooAttribute> getSpecialAttributes() {
+    public Set<String> getSpecialAttributes() {
 	return Collections.unmodifiableSet(specialAttributes);
     }
     
-    protected void addSpecialAttributes(Set<TivooAttribute> theset) {
+    protected void addSpecialAttributes(Set<String> theset) {
 	specialAttributes.addAll(theset);
     }
     
