@@ -25,14 +25,14 @@ public class MonthlyCalendarWriter extends TivooWriter {
     public void writeEvents(HtmlCanvas summary, List<TivooEvent> eventlist, String summarypath)
 	    throws IOException {
 	startTable(summary, "", "90%", "center", "1", "0", "0");
-	DateTime current = TivooTimeHandler.createLocalTime(eventlist.get(0).getStart());
+	DateTime current = TivooTimeUtils.createLocalTime(eventlist.get(0).getStart());
 	clearList();
 	boolean flag = true;
 	int count = 0;
 	for (TivooEvent e: eventlist) {
 	    count++;
 	    boolean addedThisTime = false;
-	    DateTime localstart = TivooTimeHandler.createLocalTime(e.getStart());
+	    DateTime localstart = TivooTimeUtils.createLocalTime(e.getStart());
 	    if (localstart.getMonthOfYear() != current.getMonthOfYear()) {
 		current = localstart;
 		flag = false;
@@ -45,7 +45,7 @@ public class MonthlyCalendarWriter extends TivooWriter {
 	    }
 	    if (!event.isEmpty() && (!flag || count == eventlist.size())) {
 		startRow(summary);
-		String header = TivooTimeHandler.createLocalTime(event.get(0).getStart())
+		String header = TivooTimeUtils.createLocalTime(event.get(0).getStart())
 			.toString("MMMM YYYY");
 		writeTableHead(summary, "", null, "1", "8", header, "");
 		endRow(summary);
@@ -55,7 +55,7 @@ public class MonthlyCalendarWriter extends TivooWriter {
 		for (String s: firstrow)
 		    writeTableHead(summary, "", "11.25%", "1", "1", s, "");
 		endRow(summary);
-		DateTime currentMonth = TivooTimeHandler.createLocalTime(event.get(0).getStart());
+		DateTime currentMonth = TivooTimeUtils.createLocalTime(event.get(0).getStart());
 		DateTime monthStart = currentMonth.minusDays(currentMonth.getDayOfMonth() - 1);
 		int startWeek = monthStart.getWeekOfWeekyear();
 		DateTime weekStart = monthStart.minusDays(monthStart.getDayOfWeek() - 1);

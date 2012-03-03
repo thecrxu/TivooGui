@@ -47,6 +47,7 @@ public abstract class TivooParser {
     public List<TivooEvent> convertToList(File input) {
 	eventlist = new ArrayList<TivooEvent>();
         SAXReader reader = TivooReader.getReader();
+        reader.resetHandlers();
         setUpHandlers(reader);
         try {
             reader.read(input);

@@ -9,14 +9,11 @@ import org.joda.time.format.*;
 
 public class DukeBasketBallParser extends TivooParser {
 
-    public DukeBasketBallParser() {
+    protected void setUpHandlers(SAXReader reader) {
 	setEventType(new DukeBasketBallEventType());
 	updateNodeNameMap("Subject", "Title");
 	updateNodeNameMap("Description", "Description");
 	updateNodeNameMap("Location", "Location");
-    }
-
-    protected void setUpHandlers(SAXReader reader) {
 	reader.addHandler("/dataroot/Calendar/Subject", new GetStringValueHandler());
 	reader.addHandler("/dataroot/Calendar/Description", new GetStringValueHandler());
 	reader.addHandler("/dataroot/Calendar/Location", new GetStringValueHandler());

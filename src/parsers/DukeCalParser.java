@@ -8,14 +8,11 @@ import model.*;
 
 public class DukeCalParser extends TivooParser {
     
-    public DukeCalParser() {
+    protected void setUpHandlers(SAXReader reader) {
 	setEventType(new DukeCalEventType());
 	updateNodeNameMap("summary", "Title");
 	updateNodeNameMap("description", "Description");
 	updateNodeNameMap("address", "Location");
-    }
-    
-    protected void setUpHandlers(SAXReader reader) {
 	reader.addHandler("/events/event/summary", new GetStringValueHandler());
 	reader.addHandler("/events/event/description", new GetStringValueHandler());
 	reader.addHandler("/events/event/location/address", new GetStringValueHandler());
@@ -32,7 +29,7 @@ public class DukeCalParser extends TivooParser {
     
     private DateTime parseTime(Element e) {
 	String timestring = e.getStringValue();
-	return TivooTimeHandler.createTimeUTC(timestring);
+	return TivooTimeUtils.createTimeUTC(timestring);
     }
 
     private class DukeCalEventType extends TivooEventType {

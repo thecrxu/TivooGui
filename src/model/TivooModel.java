@@ -1,6 +1,7 @@
 package model;
 import java.io.*;
 import java.util.*;
+
 import org.dom4j.*;
 import org.joda.time.*;
 import parsers.*;
@@ -40,8 +41,7 @@ public class TivooModel {
     }
     
     public void clearFilter() {
-	filteredlist.clear();
-    	Collections.copy(filteredlist, eventlist);
+	filteredlist = new ArrayList<TivooEvent>(eventlist);
     }
     
     public void reset() {
@@ -60,15 +60,22 @@ public class TivooModel {
     }
     
     public void filterByTime(DateTime startdate, DateTime enddate) {
-	filteredlist = Filter.filterByTime(filteredlist, startdate, enddate);
+	filteredlist = TivooFilter.filterTime(filteredlist, startdate, enddate);
     }
     
-    public void filterByKeywordTitle(String keyword) {
-	filteredlist = Filter.filterByKeywordTitle(filteredlist, keyword);
+    public void filterCommon(Set<String> keywords, boolean retain) {
+	filteredlist = TivooFilter.filterCommon(filteredlist, keywords, retain);
     }
     
-    public void filterByKeywordsAttributes(Set<String> keywords, boolean retain) {
-	filteredlist = Filter.filterByKeywordsAttributes(filteredlist, keywords, retain);
+    public void filterSpecial(Set<String> keywords, TivooEventType eventtype, 
+	    String attr, boolean retain) {
+	filteredlist = TivooFilter.filterSpecial(filteredlist, keywords, eventtype, attr, retain);
+    }
+    
+    public void sort(Comparator<TivooEvent> comp, boolean reverse) {
+	Collections.sort(filteredlist, comp);
+	if (reverse)
+	    Collections.reverse(filteredlist);
     }
     
 }

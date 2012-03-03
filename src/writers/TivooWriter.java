@@ -37,6 +37,7 @@ public abstract class TivooWriter {
     
     protected String buildDetailPathRel(List<TivooEvent> eventlist, TivooEvent e, 
 	    String summarypath) {
+	//System.out.println("Event is: " + e);
 	 return "details/".concat(e.getTitle()
 	        	.replaceAll("[^A-z0-9]", "").replaceAll("\\s+", "_").trim()
 	        	.concat(Integer.toString(eventlist.indexOf(e))).concat(".html"));

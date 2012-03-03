@@ -25,14 +25,14 @@ public class WeeklyCalendarWriter extends TivooWriter {
     public void writeEvents(HtmlCanvas summary, List<TivooEvent> eventlist, String summarypath) 
 	    throws IOException {
 	startTable(summary, "", "90%", "center", "1", "0", "0");
-	DateTime current = TivooTimeHandler.createLocalTime(eventlist.get(0).getStart());
+	DateTime current = TivooTimeUtils.createLocalTime(eventlist.get(0).getStart());
 	clearList();
 	boolean flag = true;
 	int count = 0;
 	for (TivooEvent e : eventlist) {
 	    count++;
 	    boolean addedThisTime = false;
-	    DateTime localstart = TivooTimeHandler.createLocalTime(e.getStart());
+	    DateTime localstart = TivooTimeUtils.createLocalTime(e.getStart());
 	    if (localstart.getWeekOfWeekyear() != current.getWeekOfWeekyear()) {
 		current = localstart;
 		flag = false;
@@ -44,7 +44,7 @@ public class WeeklyCalendarWriter extends TivooWriter {
 		addedThisTime = true;
 	    }
 	    if (!event.isEmpty() && (!flag || count == eventlist.size())) {
-		DateTime currentWeek = TivooTimeHandler.createLocalTime(event.get(0).getStart());
+		DateTime currentWeek = TivooTimeUtils.createLocalTime(event.get(0).getStart());
 		DateTime weekStart = currentWeek.minusDays(currentWeek.getDayOfWeek() - 1);
 		startRow(summary);
 		String header = weekStart.toString("MMM dd, YYYY") + " ~ " 

@@ -1,7 +1,6 @@
 package parsers;
 
 import java.util.*;
-
 import org.dom4j.*;
 import org.dom4j.io.*;
 import org.joda.time.*;
@@ -10,14 +9,11 @@ import model.*;
 
 public class NFLParser extends TivooParser {
 
-    public NFLParser() {
+    protected void setUpHandlers(SAXReader reader) {
 	setEventType(new NFLEventType());
 	updateNodeNameMap("Col1", "Title");
 	updateNodeNameMap("Col2", "Description");
 	updateNodeNameMap("Col15", "Location");
-    }
-    
-    protected void setUpHandlers(SAXReader reader) {
 	reader.addHandler("/document/row/Col1", new GetStringValueHandler());
 	reader.addHandler("/document/row/Col2", new GetStringValueHandler());
 	reader.addHandler("/document/row/Col15", new GetStringValueHandler());

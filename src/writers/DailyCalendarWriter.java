@@ -19,8 +19,8 @@ public class DailyCalendarWriter extends TivooWriter {
 	startTable(summary, "", "80%", "center", "0", "0", "0");
 	for (TivooEvent e: eventlist) {
 	    if (e.isLongEvent()) continue;
-	    DateTime localstart = TivooTimeHandler.createLocalTime(e.getStart());
-	    DateTime localend = TivooTimeHandler.createLocalTime(e.getEnd());
+	    DateTime localstart = TivooTimeUtils.createLocalTime(e.getStart());
+	    DateTime localend = TivooTimeUtils.createLocalTime(e.getEnd());
 	    checkDuplicateStartDate(summary, localstart, writtenstartdate);
 	    startRow(summary);
 	    writeTableHead(summary, "time", null, "1", "1", formatStartEnd(localstart, localend), "");

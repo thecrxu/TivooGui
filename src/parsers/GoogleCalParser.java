@@ -13,14 +13,11 @@ public class GoogleCalParser extends TivooParser {
     private DateTimeZone timezone;
     private List<List<DateTime>> recurringstartend;
 
-    public GoogleCalParser() {
+    protected void setUpHandlers(SAXReader reader) {
 	recurringstartend = new ArrayList<List<DateTime>>();
 	setEventType(new GoogleCalEventType());
 	updateNodeNameMap("*[name()='title']", "Title");
 	updateNodeNameMap("*[name()='content']", "Description");
-    }
-    
-    protected void setUpHandlers(SAXReader reader) {
 	reader.addHandler("/feed/entry/title", new GetStringValueHandler());
 	reader.addHandler("/feed/entry/content", new GetStringValueHandler());
 	reader.addHandler("/feed/gCal:timezone", new TopLevelHandler());

@@ -12,14 +12,11 @@ public class TVParser extends TivooParser {
     
     private Map<String, Set<String>> channelmap;
 
-    public TVParser() {
+    protected void setUpHandlers(SAXReader reader) {
 	channelmap = new HashMap<String, Set<String>>();
 	setEventType(new TVEventType());
 	updateNodeNameMap("title", "Title");
 	updateNodeNameMap("desc", "Description");
-    }
-    
-    protected void setUpHandlers(SAXReader reader) {
 	reader.addHandler("/tv/programme/title", new GetStringValueHandler());
 	reader.addHandler("/tv/programme/desc", new GetStringValueHandler());
 	reader.addHandler("/tv/channel", new TopLevelHandler());

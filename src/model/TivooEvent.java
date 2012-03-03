@@ -62,12 +62,19 @@ public class TivooEvent {
 	return !equals(other) && getInterval().overlaps(other.getInterval());
     }
     
-    public boolean hasKeyWord(String keyword, boolean special) {
+    public boolean hasKeyWordCommon(String keyword) {
 	String lower = keyword.toLowerCase();
-	Map<String, Object> usedmap = (special == true ?
-		mySpecialAttributes : myCommonAttributes);
-	for (String t: usedmap.keySet())
-	    if (usedmap.get(t).toString().contains(lower)) return true;
+	for (String t: myCommonAttributes.keySet())
+	    if (myCommonAttributes.get(t).toString().contains(lower))
+		return true;
+	return false;
+    }
+    
+    public boolean hasKeyWordSpecial(String keyword, TivooEventType eventtype, String attr) {
+	if (!getType().equals(eventtype)) return true;
+	String lower = keyword.toLowerCase();
+	if (mySpecialAttributes.get(attr).toString().toLowerCase().contains(lower))
+	    return true;
 	return false;
     }
     
@@ -77,7 +84,7 @@ public class TivooEvent {
 	return false;
     }
     
-    public int hashcode() {
+    public int hashCode() {
 	return myType.hashCode()*10000 + myTitle.hashCode()*100 + myDescription.hashCode();
     }
     
