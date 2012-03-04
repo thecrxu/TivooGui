@@ -14,7 +14,7 @@ public class TivooController {
 
     public TivooController() {
 	myModel = new TivooModel();
-        new TivooGenerator(myModel, this);
+        new TivooGui(myModel, this);
     }
     
     public void doRead(File input) {
